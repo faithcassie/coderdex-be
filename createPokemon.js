@@ -10,8 +10,10 @@ const createPokemon = async () => {
     newData.map((e, index) => ({
       id: index + 1,
       name: e.Name,
-      types: [e.Type1 || "", e.Type2 || null],
-      url: `http://localhost:8000/images/${index + 1}.png`,
+      types: [e.Type1 || "", e.Type2 || ""],
+      url: `https://coderdex-be-production-7765.up.railway.app/images/${
+        index + 1
+      }.png`,
     }))
   );
   newData = Array.from(newData);

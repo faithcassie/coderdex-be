@@ -10,7 +10,7 @@ router.get("/", (req, res, next) => {
     let { page, limit, ...filterQuery } = req.query;
     console.log(req.query);
     page = parseInt(page) || 1;
-    limit = parseInt(limit) | 10;
+    limit = parseInt(limit) | 20;
 
     const filterKeys = Object.keys(filterQuery);
     console.log(filterQuery);
@@ -46,8 +46,9 @@ router.get("/", (req, res, next) => {
         }
       });
     }
+
     result = result.slice(offset, offset + limit);
-    res.status(200).send(result);
+    res.status(200).send({ data: result });
   } catch (error) {
     next(error);
   }
