@@ -6,7 +6,7 @@ const fs = require("fs");
 const allPokemons = JSON.parse(fs.readFileSync("pokemons.json", "utf-8"));
 router.get("/", (req, res, next) => {
   try {
-    let { page, limit, search } = req.query;
+    let { page, limit, search, type } = req.query;
     console.log(search);
     page = parseInt(page) || 1;
     limit = parseInt(limit) | 20;
@@ -15,14 +15,21 @@ router.get("/", (req, res, next) => {
 
     let { data } = allPokemons;
     // let result = data; //[...data]
-    // console.log(result);
+    console.log(type);
+    console.log(search);
     if (search) {
       data = data.filter((pokemon) => {
         return Object.values(pokemon).some((el) =>
-          el.toString().includes(search.toLocaleLowerCase())
+          el.toString().includes(search.toLowerCase())
         );
       });
-      console.log(data);
+    }
+    if (type) {
+      data = data.filter((pokemon) => {
+        return Object.values(pokemon).some((el) =>
+          el.toString().includes(type.toLowerCase())
+        );
+      });
     }
 
     data = data.slice(offset, offset + limit);
