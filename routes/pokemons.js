@@ -2,76 +2,36 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 
-// GET all pokemons and filter by Type or Name
+// GET all pokemons and filter/search by Type or Name
 const allPokemons = JSON.parse(fs.readFileSync("pokemons.json", "utf-8"));
 router.get("/", (req, res, next) => {
-  const allowedFilter = ["name", "type"];
   try {
-    let { page, limit, ...filterQuery } = req.query;
-    console.log(req.query);
+    let { page, limit, search } = req.query;
+    console.log(search);
     page = parseInt(page) || 1;
     limit = parseInt(limit) | 20;
-
-    const filterKeys = Object.keys(filterQuery);
-    console.log(filterQuery);
-
-    filterKeys.forEach((key) => {
-      console.log(key);
-      if (!allowedFilter.includes(key)) {
-        const exception = new Error(`Query ${key} is not allowed`);
-        exception.statusCode = 401;
-        throw exception;
-      }
-      if (!filterQuery[key]) delete filterQuery[key];
-    });
-
     let offset = limit * (page - 1);
     //page limit
 
-    const { data } = allPokemons;
-    let result = data.slice(); //[...data]
-    if (filterKeys.length) {
-      filterKeys.forEach((condition) => {
-        if (condition === "type") {
-          const type = filterQuery.type;
-          result = result.filter((pokemon) =>
-            pokemon.types.some(
-              (t) => t && t.toLowerCase() === type.toLowerCase()
-            )
-          );
-        } else {
-          result = result.filter((pokemon) => {
-            const value = filterQuery[condition];
-            return pokemon[condition]
-              .toLowerCase()
-              .includes(value.toLowerCase());
-          });
-        }
+    let { data } = allPokemons;
+    // let result = data; //[...data]
+    // console.log(result);
+    if (search) {
+      data = data.filter((pokemon) => {
+        return Object.values(pokemon).some((el) =>
+          el.toString().includes(search.toLocaleLowerCase())
+        );
       });
+      console.log(data);
     }
-    //arr= ["xyz"] type="abc" =>  arr.includes(type)
-    //str= "abcxyz" search="abc" => str.includes(search)
-    //totalPage
-    //currentpage: page
-    //arr = [ 0,1,2,3,4,5,6,7,8,9,10]
-    //limit = 3
-    //page = 1
-    //arr.slice(0,3)
 
-    //limit = 3
-    //page = 2
-    //arr.slice(3,6)
-
-    //limit = 3
-    //page = 3
-    //arr.slice(6,9)
-
-    //const offset = (page-1)*limit
-    //totalPage = Math.ceil(arr.length/limit)
-    result = result.slice(offset, offset + limit);
-    res.status(200).send({ data: result });
+    data = data.slice(offset, offset + limit);
+    res.status(200).send(data);
+    // res.status(200).send(test);
   } catch (error) {
     next(error);
+    //arr= ["xyz"] type="abc" =>  arr.includes(type)
+    //str= "abcxyz" search="abc" => str.includes(search)
   }
 });
 
