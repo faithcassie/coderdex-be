@@ -10,7 +10,9 @@ const createPokemon = async () => {
     newData.map((e, index) => ({
       id: index + 1,
       name: e.Name,
-      types: [e.Type1 || "", e.Type2 || ""],
+      types: e.Type2
+        ? [e.Type1.toLowerCase(), e.Type2.toLowerCase()]
+        : [e.Type1.toLowerCase()], //["",""] //fix lowercase
       url: `https://coderdex-be-production-7765.up.railway.app/images/${
         index + 1
       }.png`,

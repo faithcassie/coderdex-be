@@ -14,6 +14,7 @@ router.get("/", (req, res, next) => {
 
     const filterKeys = Object.keys(filterQuery);
     console.log(filterQuery);
+
     filterKeys.forEach((key) => {
       console.log(key);
       if (!allowedFilter.includes(key)) {
@@ -23,9 +24,12 @@ router.get("/", (req, res, next) => {
       }
       if (!filterQuery[key]) delete filterQuery[key];
     });
+
     let offset = limit * (page - 1);
+    //page limit
+
     const { data } = allPokemons;
-    let result = data.slice();
+    let result = data.slice(); //[...data]
     if (filterKeys.length) {
       filterKeys.forEach((condition) => {
         if (condition === "type") {
@@ -38,15 +42,32 @@ router.get("/", (req, res, next) => {
         } else {
           result = result.filter((pokemon) => {
             const value = filterQuery[condition];
-            return (
-              pokemon[condition] &&
-              pokemon[condition].toLowerCase() === value.toLowerCase()
-            );
+            return pokemon[condition]
+              .toLowerCase()
+              .includes(value.toLowerCase());
           });
         }
       });
     }
+    //arr= ["xyz"] type="abc" =>  arr.includes(type)
+    //str= "abcxyz" search="abc" => str.includes(search)
+    //totalPage
+    //currentpage: page
+    //arr = [ 0,1,2,3,4,5,6,7,8,9,10]
+    //limit = 3
+    //page = 1
+    //arr.slice(0,3)
 
+    //limit = 3
+    //page = 2
+    //arr.slice(3,6)
+
+    //limit = 3
+    //page = 3
+    //arr.slice(6,9)
+
+    //const offset = (page-1)*limit
+    //totalPage = Math.ceil(arr.length/limit)
     result = result.slice(offset, offset + limit);
     res.status(200).send({ data: result });
   } catch (error) {
@@ -72,13 +93,13 @@ router.get("/:id", (req, res, next) => {
     const currentPokemon = allPokemons.data[pokemonIndex];
     const nextPokemon = allPokemons.data[pokemonIndex + 1];
 
-    const result = {
-      previous: previousPokemon || null,
-      current: currentPokemon,
-      next: nextPokemon || null,
+    const pokemon = {
+      previousPokemon: previousPokemon || null,
+      pokemon: currentPokemon,
+      nextPokemon: nextPokemon || null,
     };
 
-    res.status(200).send(result);
+    res.status(200).send(pokemon);
   } catch (error) {
     next(error);
   }
